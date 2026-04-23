@@ -1,5 +1,10 @@
 package com.example.folder;
 
+import java.nio.file.Paths;
+import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,8 +17,8 @@ public class FileController {
 
     // @GetMapping("/folder")
     // public String showFolderPage() {
-    //     // Trả về tên file HTML (không cần đuôi .html) nằm trong folder templates
-    //     return "foldermanager";
+    // // Trả về tên file HTML (không cần đuôi .html) nằm trong folder templates
+    // return "foldermanager";
     // }
     @Autowired
     private FileStorageService fileService;
@@ -28,18 +33,24 @@ public class FileController {
     // --- PHẦN THAY ĐỔI: Thêm endpoint cho HTMX ---
     @GetMapping("/folder/files")
     public String listFiles(@RequestParam String path, Model model) {
-        var files = fileService.getFilesByPath(path);
+        // Lấy danh sách File từ service và chuyển đổi sang FileDTO
+        List<File> rawFiles = fileService.getFilesByPath(path);
+        List<FileDTO> files = rawFiles.stream().map(f -> {
+            String name = f.getName();
+            String size = (f.length() / 1024) + " KB";
+            String extension = "";
+            int i = name.lastIndexOf('.');
+            if (i > 0) {
+                extension = name.substring(i + 1);
+            }
+            return new FileDTO(name, size, extension);
+        }).collect(Collectors.toList());
 
-        // Xử lý lấy tên folder hiển thị an toàn
-        String folderName = "Unknown";
-        if (path != null) {
-            int lastSlash = path.lastIndexOf("/");
-            folderName = (lastSlash != -1) ? path.substring(lastSlash + 1) : path;
-        }
-
-        model.addAttribute("currentFolder", folderName);
         model.addAttribute("files", files);
+        model.addAttribute("currentFolder", Paths.get(path).getFileName().toString());
 
+        // Quan trọng: Tên file HTML của bạn là "foldermanager.html" đúng không?
+        // Và bên trong đó có th:fragment="file-list-fragment"
         return "foldermanager :: file-list-fragment";
     }
 }

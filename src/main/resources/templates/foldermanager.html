@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
-        /* Thêm một chút CSS để bổ trợ cho việc đóng mở */
+        /* CSS bổ trợ để xử lý logic hiển thị */
         .nav-sub-group {
             display: none;
+            padding-left: 1.5rem;
         }
 
         .nav-item.expanded>.nav-sub-group {
@@ -22,6 +23,29 @@
             background: #eff6ff !important;
             color: #2563eb !important;
             font-weight: 600;
+            border-left: 4px solid #2563eb;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease;
+            width: 15px;
+        }
+
+        .nav-item.expanded>.nav-row>.expand-icon {
+            transform: rotate(90deg);
+        }
+
+        /* Loading indicator cho HTMX */
+        .htmx-indicator {
+            display: none;
+        }
+
+        .htmx-request .htmx-indicator {
+            display: inline-block;
+        }
+
+        .htmx-request.file-grid {
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -36,9 +60,9 @@
             </div>
 
             <div class="create-folder-group">
-                <input type="text" class="input-folder-name" placeholder="Hãy nhập tên thư mục cần tạo">
+                <input type="text" class="input-folder-name" placeholder="Tên thư mục mới...">
                 <button class="btn btn-light-blue">
-                    <i class="fa-solid fa-folder-plus"></i> Create Folder
+                    <i class="fa-solid fa-folder-plus"></i> Create
                 </button>
                 <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> Upload</button>
             </div>
@@ -51,55 +75,47 @@
                 </div>
             </aside>
 
-            <div th:fragment="folderTree(nodes)">
-                <div th:each="node : ${nodes}" class="nav-item">
-                    <div class="nav-row" th:attr="hx-get=@{/folder/files(path=${node.relativePath})}"
-                        hx-target="#file-display-area" hx-swap="innerHTML" onclick="toggleFolder(this)">
-
-                        <i th:if="${node.children.size() > 0}" class="fa-solid fa-caret-right expand-icon"></i>
-                        <i th:unless="${node.children.size() > 0}" class="fa-solid fa-caret-right expand-icon"
-                            style="visibility: hidden;"></i>
-
-                        <i class="fa-solid fa-folder folder-icon-modern"></i>
-                        <span class="nav-label" th:text="${node.name}">Folder Name</span>
-                        <span class="nav-badge" th:text="${node.fileCount}">0</span>
-                    </div>
-
-                    <div th:if="${node.children.size() > 0}" class="nav-sub-group">
-                        <div th:replace="~{::folderTree(${node.children})}"></div>
-                    </div>
-                </div>
-            </div>
-
             <main class="right-section" id="file-display-area">
-                <div th:fragment="file-list-fragment" style="width: 100%; height: 100%;">
+                <div th:fragment="file-list-fragment" class="file-content-wrapper" style="width: 100%;">
                     <div class="right-header">
-                        <h2 class="folder-title" th:text="${currentFolder ?: 'Chọn thư mục'}">Tên Thư Mục</h2>
-                        <span class="file-stats" th:text="${files != null ? files.size() + ' files' : '0 files'}"></span>
+                        <div class="header-info">
+                            <h2 class="folder-title">
+                                <i class="fa-solid fa-folder-open" style="margin-right: 10px; color: #fbbf24;"></i>
+                                <span th:text="${currentFolder ?: 'Root'}">Chọn thư mục</span>
+                            </h2>
+                            <span class="file-stats">
+                                <i class="fa-solid fa-circle-notch fa-spin htmx-indicator" id="loader"></i>
+                                <span th:text="${files != null ? files.size() + ' đối tượng' : '0 đối tượng'}"></span>
+                            </span>
+                        </div>
                     </div>
-            
+
                     <div class="file-scroll-area">
-                        <div class="file-grid">
+                        <div class="file-grid" id="file-grid">
                             <div th:each="file : ${files}" class="file-card">
                                 <input type="checkbox" class="file-check">
                                 <div class="file-icon"
-                                    th:classappend="${file.name.endsWith('.docx') ? 'word' : (file.name.endsWith('.pdf') ? 'pdf' : 'text')}">
+                                    th:classappend="${file.name.endsWith('.pdf') ? 'pdf' : 
+                                                      (file.name.endsWith('.docx') || file.name.endsWith('.doc') ? 'word' : 
+                                                      (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') ? 'excel' : 'text'))}">
+
                                     <i
-                                        th:class="${file.name.endsWith('.pdf') ? 'fa-solid fa-file-pdf' : 'fa-solid fa-file-lines'}"></i>
+                                        th:class="${file.name.endsWith('.pdf') ? 'fa-solid fa-file-pdf' : 
+                                                  (file.name.endsWith('.xlsx') ? 'fa-solid fa-file-excel' : 
+                                                  (file.name.endsWith('.png') || file.name.endsWith('.jpg') ? 'fa-solid fa-file-image' : 'fa-solid fa-file-lines'))}"></i>
                                 </div>
                                 <div class="file-info">
                                     <span class="file-name" th:text="${file.name}">filename.ext</span>
-                                    <span class="file-type" th:text="${file.name.contains('.') ? #strings.substringAfter(file.name, '.') : 'File'}">
-                                        Type
-                                    </span>
+                                    <span class="file-type"
+                                        th:text="${file.name.contains('.') ? #strings.substringAfter(file.name, '.') : 'File'}">Type</span>
                                 </div>
                             </div>
-            
+
                             <div th:if="${files == null || files.isEmpty()}"
-                                style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">
+                                style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8;">
                                 <i class="fa-regular fa-folder-open"
-                                    style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
-                                Thư mục này trống
+                                    style="font-size: 64px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                <p>Thư mục này không có tệp tin nào</p>
                             </div>
                         </div>
                     </div>
@@ -109,29 +125,55 @@
 
         <footer class="bottom-section">
             <button class="btn btn-danger">
-                <i class="fa-solid fa-trash-can"></i> Delete Selected Files
+                <i class="fa-solid fa-trash-can"></i> Xóa mục đã chọn
             </button>
         </footer>
     </div>
 
+    <div th:fragment="folderTree(nodes)">
+        <div th:each="node : ${nodes}" class="nav-item">
+            <div class="nav-row" th:attr="hx-get=@{/folder/files(path=${node.relativePath})}"
+                hx-target="#file-display-area" hx-swap="innerHTML" hx-trigger="click" hx-indicator="#loader"
+                onclick="handleFolderClick(this)">
+
+                <i th:if="${node.children != null && node.children.size() > 0}"
+                    class="fa-solid fa-caret-right expand-icon"></i>
+                <i th:unless="${node.children != null && node.children.size() > 0}"
+                    class="fa-solid fa-caret-right expand-icon" style="visibility: hidden;"></i>
+
+                <i class="fa-solid fa-folder folder-icon-modern"></i>
+                <span class="nav-label" th:text="${node.name}">Folder Name</span>
+                <span class="nav-badge" th:text="${node.fileCount}">0</span>
+            </div>
+
+            <div th:if="${node.children != null && node.children.size() > 0}" class="nav-sub-group">
+                <div th:replace="~{::folderTree(${node.children})}"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function toggleFolder(element) {
-            // 1. Xử lý hiệu ứng Active màu sắc
+        function handleFolderClick(element) {
+            // 1. Cập nhật trạng thái Active (UI)
             document.querySelectorAll('.nav-row').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
 
-            // 2. Xử lý đóng mở folder con
+            // 2. Xử lý đóng/mở thư mục
             const parentItem = element.closest('.nav-item');
-            const icon = element.querySelector('.expand-icon');
-
-            if (parentItem.classList.contains('expanded')) {
-                parentItem.classList.remove('expanded');
-                if (icon) icon.className = 'fa-solid fa-caret-right expand-icon';
-            } else {
-                parentItem.classList.add('expanded');
-                if (icon) icon.className = 'fa-solid fa-caret-down expand-icon';
+            if (parentItem) {
+                // Toggle class expanded để CSS xử lý hiển thị nav-sub-group
+                parentItem.classList.toggle('expanded');
             }
+
+            // HTMX sẽ tự động gọi API hx-get nhờ vào thuộc tính khai báo trong HTML
         }
+
+        // Hỗ trợ HTMX xử lý lại các sự kiện sau khi swap nội dung mới
+        document.body.addEventListener('htmx:afterSwap', function (evt) {
+            if (evt.detail.target.id === "file-display-area") {
+                console.log("Danh sách file đã được cập nhật thành công.");
+            }
+        });
     </script>
 </body>
 
