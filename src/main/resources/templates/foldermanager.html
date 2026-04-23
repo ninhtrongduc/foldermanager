@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Web File Manager</title>
+    <link rel="stylesheet" href="/css/foldermanager.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="file-manager-container">
+        <!-- Đây là phần chứa chức năng THÊM FOLDER & UPLOAD -->
+        <header class="top-section">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search files & folders...">
+            </div>
+            
+            <div class="create-folder-group">
+                <input type="text" class="input-folder-name" placeholder="Hãy nhập tên thư mục cần tạo">
+                <button class="btn btn-light-blue">
+                    <i class="fa-solid fa-folder-plus"></i> Create Folder
+                </button>
+                <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> Upload</button>
+            </div>
+        </header>
+        <!-- Đây là phần chứa chức năng THÊM FOLDER & UPLOAD -->
+        <div class="main-content">
+            <!-- Đây là phần chứa chức năng DUYỆT FOLDER BÊN TRÁI -->
+            <aside class="left-section">
+                <div class="nav-container">
+                    <div th:replace="~{::folderTree(${folders})}"></div>
+                </div>
+            </aside>
+            
+            <div th:fragment="folderTree(nodes)">
+                <div th:each="node : ${nodes}" class="nav-item" th:classappend="${node.children.size() > 0} ? 'expanded' : ''">
+                    <div class="nav-row">
+                        <i th:if="${node.children.size() > 0}" class="fa-solid fa-caret-down expand-icon"></i>
+                        <i th:unless="${node.children.size() > 0}" class="fa-solid fa-caret-right expand-icon"
+                            style="visibility: hidden;"></i>
+            
+                        <i class="fa-solid fa-folder folder-icon-modern"></i>
+                        <span class="nav-label" th:text="${node.name}">Folder Name</span>
+                        <span class="nav-badge" th:text="${node.fileCount}">0</span>
+                    </div>
+            
+                    <div th:if="${node.children.size() > 0}" class="nav-sub-group">
+                        <div th:replace="~{::folderTree(${node.children})}"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Đây là phần chứa chức năng DUYỆT FOLDER BÊN TRÁI -->
+            <main class="right-section">
+                <!-- Đây là phần chứa chức năng DUYỆT FOLDER BÊN PHẢI -->
+                <div class="right-header">
+                    <h2 class="folder-title">Project Alpha</h2>
+                    <span class="file-stats">24 files • 48.5 MB</span>
+                </div>
+                
+                <div class="file-scroll-area">
+                    <div class="file-grid">
+                        <div class="file-card selected">
+                            <input type="checkbox" class="file-check" checked>
+                            <div class="file-icon word"><i class="fa-solid fa-file-word"></i></div>
+                            <div class="file-info">
+                                <span class="file-name">Marketing_Strategy.docx</span>
+                                <span class="file-type">Word Document</span>
+                            </div>
+                        </div>
+
+                        <div class="file-card">
+                            <input type="checkbox" class="file-check">
+                            <div class="file-icon ppt"><i class="fa-solid fa-file-powerpoint"></i></div>
+                            <div class="file-info">
+                                <span class="file-name">Project_Presentation.pptx</span>
+                                <span class="file-type">PowerPoint</span>
+                            </div>
+                        </div>
+
+                        <div class="file-card">
+                            <input type="checkbox" class="file-check">
+                            <div class="file-icon excel"><i class="fa-solid fa-file-excel"></i></div>
+                            <div class="file-info">
+                                <span class="file-name">Financial_Report_Q1.xlsx</span>
+                                <span class="file-type">Excel Sheet</span>
+                            </div>
+                        </div>
+
+                        <div class="file-card"><div class="file-icon pdf"><i class="fa-solid fa-file-pdf"></i></div><div class="file-info"><span class="file-name">Invoice_102.pdf</span><span class="file-type">PDF</span></div></div>
+                        <div class="file-card"><div class="file-icon image"><i class="fa-solid fa-image"></i></div><div class="file-info"><span class="file-name">Branding_v1.png</span><span class="file-type">Image</span></div></div>
+                        <div class="file-card"><div class="file-icon video"><i class="fa-solid fa-circle-play"></i></div><div class="file-info"><span class="file-name">Intro_Video.mp4</span><span class="file-type">Video</span></div></div>
+                        <div class="file-card"><div class="file-icon archive"><i class="fa-solid fa-file-zipper"></i></div><div class="file-info"><span class="file-name">Source_Code.zip</span><span class="file-type">Archive</span></div></div>
+                        <div class="file-card"><div class="file-icon text"><i class="fa-solid fa-file-lines"></i></div><div class="file-info"><span class="file-name">Readme.txt</span><span class="file-type">Text</span></div></div>
+                        
+                        <div class="file-card"><div class="file-icon pdf"><i class="fa-solid fa-file-pdf"></i></div><div class="file-info"><span class="file-name">Contract_Final.pdf</span><span class="file-type">PDF</span></div></div>
+                        <div class="file-card"><div class="file-icon image"><i class="fa-solid fa-image"></i></div><div class="file-info"><span class="file-name">Asset_001.jpg</span><span class="file-type">Image</span></div></div>
+                        <div class="file-card"><div class="file-icon word"><i class="fa-solid fa-file-word"></i></div><div class="file-info"><span class="file-name">Internal_Memo.docx</span><span class="file-type">Word</span></div></div>
+                        <div class="file-card"><div class="file-icon excel"><i class="fa-solid fa-file-excel"></i></div><div class="file-info"><span class="file-name">User_List.xlsx</span><span class="file-type">Excel</span></div></div>
+                        <div class="file-card"><div class="file-icon ppt"><i class="fa-solid fa-file-powerpoint"></i></div><div class="file-info"><span class="file-name">Pitch_Deck_v3.pptx</span><span class="file-type">PowerPoint</span></div></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="bottom-section">
+            <button class="btn btn-danger">
+                <i class="fa-solid fa-trash-can"></i> Delete Selected Files
+            </button>
+        </footer>
+    </div>
+
+</body>
+</html>
