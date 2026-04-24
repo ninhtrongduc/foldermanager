@@ -1,5 +1,5 @@
 :root {
-    --primary: #4f46e5;
+    --primary: #1209c9;
     --light-blue: #0ea5e9;
     --light-blue-hover: #0284c7;
     --danger: #ef4444;
@@ -48,7 +48,23 @@ body {
     display: flex;
     align-items: center;
 }
+.header-info {
+    display: flex;
+    /* Kích hoạt Flexbox */
+    align-items: center;
+    /* Căn giữa các phần tử theo chiều dọc */
+    justify-content: space-between;
+    /* Đẩy các phần tử con ra xa nhau về 2 phía */
+    width: 100%;
+    /* Đảm bảo chiếm hết chiều ngang */
+}
 
+/* Đảm bảo h2 không chiếm hết hàng và gây xuống dòng */
+.folder-title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
 .search-bar input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; font-size: 14px; }
 
 .create-folder-group { display: flex; align-items: center; gap: 10px; }
@@ -119,7 +135,7 @@ body {
 .right-section { flex: 1; display: flex; flex-direction: column; background: #fcfcfc; }
 
 .right-header { padding: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-.folder-title { font-size: 22px; color: var(--text-dark); }
+.folder-title { font-size: 22px; color: var(--primary); }
 .file-stats { font-size: 13px; color: var(--text-gray); }
 
 .file-scroll-area {

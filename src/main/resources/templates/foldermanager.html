@@ -146,11 +146,11 @@
                         <div class="header-info">
                             <h2 class="folder-title">
                                 <i class="fa-solid fa-folder-open" style="margin-right: 10px; color: #fbbf24;"></i>
-                                <span th:text="${currentFolder ?: 'Root'}">Thư mục</span>
+                                <span th:text="${currentFolder ?: '/MEDIA/'}">Thư mục</span>
                             </h2>
                             <span class="file-stats">
                                 <i class="fa-solid fa-circle-notch fa-spin htmx-indicator" id="loader"></i>
-                                <span th:text="${files != null ? files.size() + ' tệp tin' : '0 tệp tin'}"></span>
+                                <span th:text="${files != null ? files.size() + ' tệp tin' : '0 tệp tin'}">Số lượng tệp tin</span>
                             </span>
                         </div>
                     </div>
