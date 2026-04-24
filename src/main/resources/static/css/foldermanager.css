@@ -9,7 +9,7 @@
     --text-gray: #64748b;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', system-ui, sans-serif; }
 
 body {
     background-color: #f1f5f9;
@@ -138,12 +138,12 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     gap: 20px;
 }
-
+/* Thu nhỏ nhẹ thẻ file card để hiển thị được nhiều file hơn */
 .file-card {
     background: white;
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 16px;
+    border-radius: 10px;
+    padding: 16px 12px;
     text-align: center;
     position: relative;
     transition: 0.2s;
@@ -153,7 +153,7 @@ body {
 .file-card.selected { border-color: var(--primary); background: #f5f3ff; }
 
 .file-check { position: absolute; top: 12px; left: 12px; }
-.file-icon { font-size: 48px; margin-bottom: 12px; }
+.file-icon { font-size: 40px; margin-bottom: 8px; }
 
 /* File Icon Colors */
 .word { color: #2563eb; }
@@ -165,8 +165,8 @@ body {
 .archive { color: #64748b; }
 .text { color: #475569; }
 
-.file-name { display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-type { font-size: 11px; color: var(--text-gray); }
+.file-name { display: block; font-size: 12px; font-weight: 400; color: var(--text-dark); margin-top: 8px; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px;}
+.file-type { font-size: 10px; color: var(--text-gray); text-transform: lowercase; opacity: 0.8 }
 
 /* BOTTOM SECTION */
 .bottom-section { padding: 16px; border-top: 1px solid var(--border); text-align: center; background: white; }

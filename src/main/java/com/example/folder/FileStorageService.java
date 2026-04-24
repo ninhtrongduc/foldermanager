@@ -90,4 +90,72 @@ public class FileStorageService {
 
         return fileList;
     }
+
+    public void createNewFolder(String folderName) {
+        try {
+            // Sử dụng uploadDir đã được cấu hình trong Service
+            Path root = Paths.get(uploadDir);
+
+            // Tạo đường dẫn tuyệt đối cho thư mục mới bên trong thư mục gốc
+            Path newFolderPath = root.resolve(folderName);
+            File newDir = newFolderPath.toFile();
+
+            // Kiểm tra nếu thư mục chưa tồn tại thì tiến hành tạo mới
+            if (!newDir.exists()) {
+                boolean created = newDir.mkdirs();
+                if (created) {
+                    System.out.println("Đã tạo thư mục thành công tại: " + newDir.getAbsolutePath());
+                } else {
+                    System.err.println("Không thể tạo thư mục tại: " + newDir.getAbsolutePath());
+                }
+            } else {
+                System.out.println("Thư mục đã tồn tại.");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tạo thư mục mới: " + e.getMessage());
+        }
+    }
+
+    //XÓA ĐỆ QUY VÌ JAVA KHÔNG CHO PHÉP XÓA FOLDER NẾU CÓ THƯ MỤC CON
+    public void deleteFolder(String relativePath) {
+        try {
+            Path root = Paths.get(uploadDir);
+            // Xử lý path tương tự như hàm getFilesByPath của bạn [cite: 74, 75]
+            File folderToDelete = root.resolve(relativePath.replace("media/", "")).toFile();
+
+            if (folderToDelete.exists()) {
+                deleteRecursively(folderToDelete);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi xóa: " + e.getMessage());
+        }
+    }
+
+    private void deleteRecursively(File file) {
+        File[] allContents = file.listFiles();
+        if (allContents != null) {
+            for (File f : allContents) {
+                deleteRecursively(f);
+            }
+        }
+        file.delete();
+    }
+
+    //XÓA FILES CÓ CHECKBOX=true
+    public void deleteFiles(List<String> fileNames, String relativePath) {
+        try {
+            Path root = Paths.get(uploadDir);
+            // Xử lý để lấy đường dẫn thư mục hiện tại [cite: 33, 34, 35]
+            Path folderPath = root.resolve(relativePath.replace("media/", ""));
+
+            for (String fileName : fileNames) {
+                File fileToDelete = folderPath.resolve(fileName).toFile();
+                if (fileToDelete.exists() && fileToDelete.isFile()) {
+                    fileToDelete.delete();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi xóa files: " + e.getMessage());
+        }
+    }
 }

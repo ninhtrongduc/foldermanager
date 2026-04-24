@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Web File Manager</title>
+    <title>FOLDER MANAGER</title>
     <link rel="stylesheet" href="/css/foldermanager.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
-        /* CSS bổ trợ để xử lý logic hiển thị */
+        /* CSS xử lý logic hiển thị thư mục */
         .nav-sub-group {
             display: none;
             padding-left: 1.5rem;
@@ -35,7 +35,6 @@
             transform: rotate(90deg);
         }
 
-        /* Loading indicator cho HTMX */
         .htmx-indicator {
             display: none;
         }
@@ -44,24 +43,88 @@
             display: inline-block;
         }
 
-        .htmx-request.file-grid {
-            opacity: 0.5;
+        /* Layout cơ bản */
+        .main-content {
+            height: calc(100vh - 140px);
+            display: flex;
+            overflow: hidden;
         }
+
+        .left-section {
+            width: 280px;
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .file-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+
+        /* Màu sắc cho từng loại icon file */
+        .icon-image {
+            color: #fb7185;
+        }
+
+        /* Hồng/Đỏ nhạt */
+        .icon-video {
+            color: #818cf8;
+        }
+
+        /* Tím xanh */
+        .icon-pdf {
+            color: #f87171;
+        }
+
+        /* Đỏ */
+        .icon-excel {
+            color: #22c55e;
+        }
+
+        /* Xanh lá */
+        .icon-doc {
+            color: #3b82f6;
+        }
+
+        /* Xanh dương */
+        .icon-default {
+            color: #94a3b8;
+        }
+
+        /* Xám */
     </style>
 </head>
 
 <body>
-
     <div class="file-manager-container">
         <header class="top-section">
-            <div class="search-bar">
+            <!-- <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" placeholder="Search files & folders...">
+            </div> -->
+            <div class="delete-folder-zone">
+            <button class="btn-delete-folder" id="btn-delete-folder" hx-delete="/folder/delete" hx-target="#folder-sidebar"
+                hx-confirm="Bạn có chắc muốn xóa thư mục này?" hx-vals='js:{path: getSelectedFolderPath()}'
+                style="display: none; background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-trash-can"></i>
+                <span style="font-weight: 600;">XÓA THƯ MỤC</span>
+            </button>
             </div>
-
             <div class="create-folder-group">
-                <input type="text" class="input-folder-name" placeholder="Tên thư mục mới...">
-                <button class="btn btn-light-blue">
+                <input type="text" id="newFolderName" name="folderName" class="input-folder-name"
+                    placeholder="Tên thư mục mới...">
+                <button class="btn btn-light-blue" hx-post="/folder/create" hx-include="#newFolderName"
+                    hx-target="#folder-sidebar" hx-trigger="click" onclick="return validateFolderName()">
                     <i class="fa-solid fa-folder-plus"></i> Create
                 </button>
                 <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> Upload</button>
@@ -70,22 +133,24 @@
 
         <div class="main-content">
             <aside class="left-section">
-                <div class="nav-container">
+                <div class="nav-container" id="folder-sidebar">
                     <div th:replace="~{::folderTree(${folders})}"></div>
                 </div>
             </aside>
 
             <main class="right-section" id="file-display-area">
-                <div th:fragment="file-list-fragment" class="file-content-wrapper" style="width: 100%;">
-                    <div class="right-header">
+                <div th:fragment="file-list-fragment" class="file-content-wrapper"
+                    style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="right-header"
+                        style="padding: 20px; border-bottom: 1px solid #e2e8f0; background: white;">
                         <div class="header-info">
                             <h2 class="folder-title">
                                 <i class="fa-solid fa-folder-open" style="margin-right: 10px; color: #fbbf24;"></i>
-                                <span th:text="${currentFolder ?: 'Root'}">Chọn thư mục</span>
+                                <span th:text="${currentFolder ?: 'Root'}">Thư mục</span>
                             </h2>
                             <span class="file-stats">
                                 <i class="fa-solid fa-circle-notch fa-spin htmx-indicator" id="loader"></i>
-                                <span th:text="${files != null ? files.size() + ' đối tượng' : '0 đối tượng'}"></span>
+                                <span th:text="${files != null ? files.size() + ' tệp tin' : '0 tệp tin'}"></span>
                             </span>
                         </div>
                     </div>
@@ -93,28 +158,37 @@
                     <div class="file-scroll-area">
                         <div class="file-grid" id="file-grid">
                             <div th:each="file : ${files}" class="file-card">
-                                <input type="checkbox" class="file-check">
-                                <div class="file-icon"
-                                    th:classappend="${file.name.endsWith('.pdf') ? 'pdf' : 
-                                                      (file.name.endsWith('.docx') || file.name.endsWith('.doc') ? 'word' : 
-                                                      (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') ? 'excel' : 'text'))}">
+                                <input type="checkbox" class="file-check" name="selectedFiles" th:value="${file.name}">
 
-                                    <i
-                                        th:class="${file.name.endsWith('.pdf') ? 'fa-solid fa-file-pdf' : 
-                                                  (file.name.endsWith('.xlsx') ? 'fa-solid fa-file-excel' : 
-                                                  (file.name.endsWith('.png') || file.name.endsWith('.jpg') ? 'fa-solid fa-file-image' : 'fa-solid fa-file-lines'))}"></i>
+                                <div class="file-icon">
+                                    <i th:if="${file.extension == 'jpg' || file.extension == 'png' || file.extension == 'gif' || file.extension == 'jpeg' || file.extension == 'webp'}"
+                                        class="fa-solid fa-file-image icon-image"></i>
+
+                                    <i th:if="${file.extension == 'mp4' || file.extension == 'mov' || file.extension == 'avi'}"
+                                        class="fa-solid fa-file-video icon-video"></i>
+
+                                    <i th:if="${file.extension == 'pdf'}" class="fa-solid fa-file-pdf icon-pdf"></i>
+
+                                    <i th:if="${file.extension == 'xlsx' || file.extension == 'xls' || file.extension == 'csv'}"
+                                        class="fa-solid fa-file-excel icon-excel"></i>
+
+                                    <i th:if="${file.extension == 'docx' || file.extension == 'doc'}"
+                                        class="fa-solid fa-file-word icon-doc"></i>
+
+                                    <i th:if="${file.extension != 'jpg' && file.extension != 'png' && file.extension != 'gif' && file.extension != 'jpeg' && file.extension != 'webp' && file.extension != 'mp4' && file.extension != 'mov' && file.extension != 'avi' && file.extension != 'pdf' && file.extension != 'xlsx' && file.extension != 'xls' && file.extension != 'csv' && file.extension != 'docx' && file.extension != 'doc'}"
+                                        class="fa-solid fa-file-lines icon-default"></i>
                                 </div>
+
                                 <div class="file-info">
                                     <span class="file-name" th:text="${file.name}">filename.ext</span>
-                                    <span class="file-type"
-                                        th:text="${file.name.contains('.') ? #strings.substringAfter(file.name, '.') : 'File'}">Type</span>
+                                    <span class="file-size" style="font-size: 0.75rem; color: #64748b;"
+                                        th:text="${file.size}">0 KB</span>
                                 </div>
                             </div>
 
                             <div th:if="${files == null || files.isEmpty()}"
-                                style="grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8;">
-                                <i class="fa-regular fa-folder-open"
-                                    style="font-size: 64px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                style="text-align: center; padding: 60px; color: #94a3b8; grid-column: 1/-1;">
+                                <i class="fa-regular fa-folder-open" style="font-size: 64px; opacity: 0.5;"></i>
                                 <p>Thư mục này không có tệp tin nào</p>
                             </div>
                         </div>
@@ -122,10 +196,11 @@
                 </div>
             </main>
         </div>
-
         <footer class="bottom-section">
-            <button class="btn btn-danger">
-                <i class="fa-solid fa-trash-can"></i> Xóa mục đã chọn
+            <button class="btn btn-danger" hx-delete="/folder/files/delete-selected" hx-include=".file-check:checked"
+                hx-vals='js:{path: getSelectedFolderPath()}' hx-target="#file-display-area"
+                hx-confirm="Bạn có chắc chắn muốn xóa các tệp đã chọn?">
+                <i class="fa-solid fa-trash-can"></i> Xóa tệp tin
             </button>
         </footer>
     </div>
@@ -153,25 +228,52 @@
     </div>
 
     <script>
-        function handleFolderClick(element) {
-            // 1. Cập nhật trạng thái Active (UI)
-            document.querySelectorAll('.nav-row').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-
-            // 2. Xử lý đóng/mở thư mục
-            const parentItem = element.closest('.nav-item');
-            if (parentItem) {
-                // Toggle class expanded để CSS xử lý hiển thị nav-sub-group
-                parentItem.classList.toggle('expanded');
+        
+        function validateFolderName() {
+            const input = document.getElementById('newFolderName');
+            if (!input.value.trim()) {
+                alert("Bạn chưa nhập tên thư mục");
+                return false;
             }
-
-            // HTMX sẽ tự động gọi API hx-get nhờ vào thuộc tính khai báo trong HTML
+            return true;
         }
 
-        // Hỗ trợ HTMX xử lý lại các sự kiện sau khi swap nội dung mới
-        document.body.addEventListener('htmx:afterSwap', function (evt) {
-            if (evt.detail.target.id === "file-display-area") {
-                console.log("Danh sách file đã được cập nhật thành công.");
+        let selectedPath = "";
+
+            function handleFolderClick(element) {
+                // UI Active [cite: 45]
+                document.querySelectorAll('.nav-row').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+
+                // Lấy path từ thuộc tính hx-get (bạn cần substring để lấy tham số path) [cite: 42]
+                const url = new URL(element.getAttribute('hx-get'), window.location.origin);
+                selectedPath = url.searchParams.get('path');
+
+                // Hiện nút xóa
+                document.getElementById('btn-delete-folder').style.display = 'flex';
+
+                // Đóng mở thư mục [cite: 47]
+                const parentItem = element.closest('.nav-item');
+                if (parentItem) parentItem.classList.toggle('expanded');
+            }
+
+            function getSelectedFolderPath() {
+                return selectedPath;
+            }
+
+            // Reset sau khi HTMX xóa thành công
+            document.body.addEventListener('htmx:afterOnRequest', function (evt) {
+                if (evt.detail.pathInfo.requestPath === "/folder/delete") {
+                    selectedPath = "";
+                    document.getElementById('btn-delete-folder').style.display = 'none';
+                    // Xóa nội dung hiển thị file bên phải vì thư mục không còn tồn tại
+                    document.getElementById('file-display-area').innerHTML = '';
+                }
+            });
+
+        document.body.addEventListener('htmx:afterOnRequest', function (evt) {
+            if (evt.detail.pathInfo.requestPath === "/folder/create") {
+                document.getElementById('newFolderName').value = '';
             }
         });
     </script>

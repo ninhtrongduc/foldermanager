@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -52,5 +54,55 @@ public class FileController {
         // Quan trọng: Tên file HTML của bạn là "foldermanager.html" đúng không?
         // Và bên trong đó có th:fragment="file-list-fragment"
         return "foldermanager :: file-list-fragment";
+    }
+
+    // TẠO FOLDER
+    @PostMapping("/folder/create")
+    public String createFolder(@RequestParam String folderName, Model model) {
+        // 1. Tạo thư mục vật lý
+        fileService.createNewFolder(folderName);
+
+        // 2. Lấy lại cây thư mục mới
+        FolderNode root = fileService.getFolderTree();
+
+        // 3. Đưa danh sách vào Model với tên 'folders'
+        model.addAttribute("folders", root.getChildren());
+
+        // 4. Trả về fragment.
+        // Cú pháp nodes=${folders} giúp map danh sách 'folders' từ Model
+        // vào tham số 'nodes' của fragment folderTree(nodes)
+        return "foldermanager :: folderTree(nodes=${folders})";
+    }
+
+    //XÓA FOLDER
+    @DeleteMapping("/folder/delete")
+    public String deleteFolder(@RequestParam String path, Model model) {
+        // 1. Thực hiện xóa thư mục vật lý
+        fileService.deleteFolder(path);
+
+        // 2. Lấy lại cây thư mục mới sau khi xóa
+        FolderNode root = fileService.getFolderTree();
+
+        // 3. Đưa danh sách mới vào Model [cite: 54]
+        model.addAttribute("folders", root.getChildren());
+
+        // 4. SỬA LỖI TẠI ĐÂY: Ánh xạ biến model 'folders' vào tham số 'nodes' của
+        // fragment
+        // Cú pháp: "tên_file :: tên_fragment(tham_số=${biến_model})"
+        return "foldermanager :: folderTree(nodes=${folders})";
+    }
+
+    //XÓA FILES CÓ CHECKBOX=true
+    @DeleteMapping("/folder/files/delete-selected")
+    public String deleteSelectedFiles(
+            @RequestParam("selectedFiles") List<String> selectedFiles,
+            @RequestParam("path") String path,
+            Model model) {
+
+        // 1. Thực hiện xóa danh sách file [cite: 53]
+        fileService.deleteFiles(selectedFiles, path);
+
+        // 2. Lấy lại danh sách file mới sau khi xóa để cập nhật UI [cite: 7, 9]
+        return listFiles(path, model);
     }
 }
