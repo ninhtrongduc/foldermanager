@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 // Đẩy dữ liệu cây thư mục ra View
@@ -103,6 +104,20 @@ public class FileController {
         fileService.deleteFiles(selectedFiles, path);
 
         // 2. Lấy lại danh sách file mới sau khi xóa để cập nhật UI [cite: 7, 9]
+        return listFiles(path, model);
+    }
+
+    //UPLOAD
+    @PostMapping("/folder/upload")
+    public String uploadFiles(
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam("path") String path,
+            Model model) {
+        
+        // 1. Lưu file
+        fileService.saveFiles(files, path);
+        
+        // 2. Trả về fragment danh sách file để refresh vùng bên phải [cite: 10, 21]
         return listFiles(path, model);
     }
 }

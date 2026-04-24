@@ -1,12 +1,15 @@
 package com.example.folder;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileStorageService {
@@ -156,6 +159,42 @@ public class FileStorageService {
             }
         } catch (Exception e) {
             System.err.println("Lỗi khi xóa files: " + e.getMessage());
+        }
+    }
+
+    //UPLOAD
+    public void saveFiles(List<MultipartFile> files, String relativePath) {
+        try {
+            Path root = Paths.get(uploadDir);
+            // Xử lý logic path đồng nhất với getFilesByPath [cite: 35, 36]
+            String rootFolderName = root.getFileName().toString();
+            Path targetPath;
+
+            if (relativePath.startsWith(rootFolderName)) {
+                String subPathStr = relativePath.substring(rootFolderName.length());
+                if (subPathStr.startsWith("/") || subPathStr.startsWith("\\")) {
+                    subPathStr = subPathStr.substring(1);
+                }
+                targetPath = root.resolve(subPathStr);
+            } else {
+                targetPath = root.resolve(relativePath);
+            }
+
+            // Tạo thư mục nếu chưa có
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath);
+            }
+
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    Path destination = targetPath.resolve(file.getOriginalFilename());
+                    // Copy file đè lên nếu đã tồn tại
+                    Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("Uploaded: " + destination.toString());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi Upload: " + e.getMessage());
         }
     }
 }

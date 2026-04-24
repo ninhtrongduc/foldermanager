@@ -113,21 +113,31 @@
                 <input type="text" placeholder="Search files & folders...">
             </div> -->
             <div class="delete-folder-zone">
-            <button class="btn-delete-folder" id="btn-delete-folder" hx-delete="/folder/delete" hx-target="#folder-sidebar"
-                hx-confirm="Bạn có chắc muốn xóa thư mục này?" hx-vals='js:{path: getSelectedFolderPath()}'
-                style="display: none; background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-trash-can"></i>
-                <span style="font-weight: 600;">XÓA THƯ MỤC</span>
-            </button>
+                <!-- ĐÂY LÀ CHỨC NĂNG TẠO XÓA THƯ MỤC -->
+                <button class="btn-delete-folder" id="btn-delete-folder" hx-delete="/folder/delete" hx-target="#folder-sidebar"
+                    hx-confirm="Bạn có chắc muốn xóa thư mục này?" hx-vals='js:{path: getSelectedFolderPath()}'
+                    style="display: none; background: none; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span style="font-weight: 600;">XÓA THƯ MỤC</span>
+                </button>
+            <!-- ĐÂY LÀ CHỨC NĂNG TẠO XÓA THƯ MỤC -->
             </div>
             <div class="create-folder-group">
-                <input type="text" id="newFolderName" name="folderName" class="input-folder-name"
-                    placeholder="Tên thư mục mới...">
-                <button class="btn btn-light-blue" hx-post="/folder/create" hx-include="#newFolderName"
-                    hx-target="#folder-sidebar" hx-trigger="click" onclick="return validateFolderName()">
+                <input type="text" id="newFolderName" name="folderName" class="input-folder-name" placeholder="Tên thư mục mới...">
+                <button class="btn btn-light-blue" hx-post="/folder/create" hx-include="#newFolderName" hx-target="#folder-sidebar"
+                    onclick="return validateFolderName()">
                     <i class="fa-solid fa-folder-plus"></i> Create
                 </button>
-                <button class="btn btn-primary"><i class="fa-solid fa-upload"></i> Upload</button>
+            
+                <form hx-post="/folder/upload" hx-encoding="multipart/form-data" hx-trigger="change from:#fileInput"
+                    hx-target="#file-display-area" hx-indicator="#loader" hx-vals='js:{path: getSelectedFolderPath()}'>
+            
+                    <input type="file" id="fileInput" name="files" multiple style="display: none;">
+            
+                    <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-upload"></i> Upload
+                    </button>
+                </form>
             </div>
         </header>
 
