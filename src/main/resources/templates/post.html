@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm bài viết</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/foldermanager.css">
+    <style>
+        /* CSS bổ sung để tinh chỉnh riêng cho form "Thêm bài viết" theo hình ảnh */
+        .post-form-container {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 12px;
+            color: var(--light-blue);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--light-blue);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            grid-column: span 2;
+        }
+
+        .editor-toolbar {
+            border: 1px solid var(--border);
+            border-bottom: none;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            color: var(--light-blue);
+        }
+
+        .editor-content {
+            border: 1px solid var(--border);
+            border-radius: 0 0 8px 8px;
+            padding: 15px;
+            min-height: 200px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .btn-header {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-post {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="file-manager-container">
+        <header class="top-section">
+            <div class="folder-title">
+                <i class="fa-solid fa-book-open folder-icon-modern"></i>
+                <h2 style="font-size: 18px; color: var(--text-dark);">Thêm bài viết</h2>
+            </div>
+            <div class="btn-header">
+                <button class="btn btn-post"><i class="fa-solid fa-check"></i> Đăng</button>
+                <button class="btn btn-delete"><i class="fa-solid fa-xmark"></i> Xóa</button>
+            </div>
+        </header>
+
+        <div class="file-scroll-area">
+            <div class="post-form-container">
+
+                <div class="form-card">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <i class="fa-solid fa-pen"></i>
+                            <input type="text" class="input-field" placeholder="Tên bài viết">
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fa-solid fa-link"></i>
+                            <input type="text" class="input-field" placeholder="Tên url">
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fa-solid fa-folder"></i>
+                            <select class="input-field">
+                                <option value="">Danh sách chuyên mục</option>
+                            </select>
+                        </div>
+
+                        <div style="visibility: hidden;"></div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="feature" style="width: 18px; height: 18px;">
+                            <label for="feature">Tin tiêu điểm <i class="fa-solid fa-star"
+                                    style="color: var(--light-blue);"></i></label>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" class="input-field" placeholder="Tác giả">
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <input type="text" class="input-field" placeholder="Ngày đăng">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="editor-toolbar">
+                        <i class="fa-solid fa-bold"></i>
+                        <i class="fa-solid fa-italic"></i>
+                        <i class="fa-solid fa-underline"></i>
+                        <i class="fa-solid fa-strikethrough"></i>
+                        <span>|</span>
+                        <i class="fa-solid fa-font"></i>
+                        <i class="fa-solid fa-highlighter"></i>
+                        <i class="fa-solid fa-text-height"></i>
+                        <span>|</span>
+                        <i class="fa-solid fa-list-ul"></i>
+                        <i class="fa-solid fa-list-ol"></i>
+                        <i class="fa-solid fa-align-left"></i>
+                        <span>|</span>
+                        <i class="fa-solid fa-link"></i>
+                        <i class="fa-solid fa-image"></i>
+                        <i class="fa-solid fa-clapperboard"></i>
+                        <i class="fa-solid fa-video"></i>
+                        <i class="fa-solid fa-table"></i>
+                    </div>
+                    <div class="editor-content" contenteditable="true">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim enia quis oronscol vilt ullaci lobilort e
+                        alquiae ex: ea commodo consequat.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
