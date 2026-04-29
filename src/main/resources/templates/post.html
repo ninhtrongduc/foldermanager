@@ -4,11 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm bài viết</title>
+    <title>Thêm bài viết - Quản lý nội dung</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link rel="stylesheet" href="/css/foldermanager.css">
+    <link rel="stylesheet" href="/css/flatpickr.min.css">
+
     <style>
-        /* CSS bổ sung để tinh chỉnh riêng cho form "Thêm bài viết" theo hình ảnh */
+        /* Tinh chỉnh riêng cho form Thêm bài viết */
         .post-form-container {
             padding: 24px;
             display: flex;
@@ -17,7 +21,7 @@
         }
 
         .form-card {
-            background: #fff;
+            background: #ffffff;
             border-radius: 12px;
             padding: 24px;
             border: 1px solid var(--border);
@@ -37,21 +41,25 @@
 
         .input-group i {
             position: absolute;
-            left: 12px;
+            left: 14px;
             color: var(--light-blue);
+            font-size: 14px;
         }
 
         .input-field {
             width: 100%;
-            padding: 10px 10px 10px 40px;
+            padding: 12px 12px 12px 42px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
             outline: none;
+            transition: all 0.2s;
+            background: #fff;
         }
 
         .input-field:focus {
             border-color: var(--light-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
         }
 
         .checkbox-group {
@@ -61,16 +69,17 @@
             font-size: 14px;
             color: var(--text-dark);
             grid-column: span 2;
+            padding: 5px 0;
         }
 
         .editor-toolbar {
             border: 1px solid var(--border);
             border-bottom: none;
-            padding: 10px;
+            padding: 12px;
             background: #f8fafc;
             border-radius: 8px 8px 0 0;
             display: flex;
-            gap: 15px;
+            gap: 18px;
             flex-wrap: wrap;
             color: var(--light-blue);
         }
@@ -78,25 +87,29 @@
         .editor-content {
             border: 1px solid var(--border);
             border-radius: 0 0 8px 8px;
-            padding: 15px;
-            min-height: 200px;
-            font-size: 14px;
+            padding: 20px;
+            min-height: 250px;
+            font-size: 15px;
             line-height: 1.6;
+            outline: none;
+            background: #fff;
         }
 
-        .btn-header {
+        /* Tùy chỉnh Flatpickr */
+        .flatpickr-calendar {
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .flatpickr-day.selected {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .btn-header-group {
             display: flex;
             gap: 10px;
-        }
-
-        .btn-post {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-delete {
-            background: var(--danger);
-            color: white;
         }
     </style>
 </head>
@@ -106,87 +119,104 @@
     <div class="file-manager-container">
         <header class="top-section">
             <div class="folder-title">
-                <i class="fa-solid fa-book-open folder-icon-modern"></i>
-                <h2 style="font-size: 18px; color: var(--text-dark);">Thêm bài viết</h2>
+                <i class="fa-solid fa-file-signature folder-icon-modern"></i>
+                <h2 style="font-size: 20px; font-weight: 600; color: var(--text-dark);">Thêm bài viết</h2>
             </div>
-            <div class="btn-header">
-                <button class="btn btn-post"><i class="fa-solid fa-check"></i> Đăng</button>
-                <button class="btn btn-delete"><i class="fa-solid fa-xmark"></i> Xóa</button>
+            <div class="btn-header-group">
+                <button class="btn btn-primary" style="background: var(--primary);"><i
+                        class="fa-solid fa-paper-plane"></i> Đăng</button>
+                <button class="btn" style="background: var(--danger); color: white;"><i
+                        class="fa-solid fa-trash-can"></i> Xóa</button>
             </div>
         </header>
 
         <div class="file-scroll-area">
             <div class="post-form-container">
-
                 <div class="form-card">
                     <div class="input-grid">
                         <div class="input-group">
-                            <i class="fa-solid fa-pen"></i>
+                            <i class="fa-solid fa-heading"></i>
                             <input type="text" class="input-field" placeholder="Tên bài viết">
                         </div>
-
                         <div class="input-group">
                             <i class="fa-solid fa-link"></i>
                             <input type="text" class="input-field" placeholder="Tên url">
                         </div>
-
                         <div class="input-group">
-                            <i class="fa-solid fa-folder"></i>
-                            <select class="input-field">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <select class="input-field" style="padding-left: 42px;">
                                 <option value="">Danh sách chuyên mục</option>
                             </select>
                         </div>
-
-                        <div style="visibility: hidden;"></div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="feature" style="width: 18px; height: 18px;">
-                            <label for="feature">Tin tiêu điểm <i class="fa-solid fa-star"
-                                    style="color: var(--light-blue);"></i></label>
+                            <input type="checkbox" id="is_featured">
+                            <label for="is_featured">Tin tiêu điểm <i class="fa-solid fa-star"
+                                    style="color: #ffb100;"></i></label>
                         </div>
-
                         <div class="input-group">
-                            <i class="fa-solid fa-user"></i>
+                            <i class="fa-solid fa-user-pen"></i>
                             <input type="text" class="input-field" placeholder="Tác giả">
                         </div>
 
                         <div class="input-group">
-                            <i class="fa-solid fa-calendar-days"></i>
-                            <input type="text" class="input-field" placeholder="Ngày đăng">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <input type="text" id="publish-date" class="input-field" placeholder="Ngày đăng" readonly>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-card">
                     <div class="editor-toolbar">
-                        <i class="fa-solid fa-bold"></i>
-                        <i class="fa-solid fa-italic"></i>
-                        <i class="fa-solid fa-underline"></i>
-                        <i class="fa-solid fa-strikethrough"></i>
-                        <span>|</span>
-                        <i class="fa-solid fa-font"></i>
-                        <i class="fa-solid fa-highlighter"></i>
-                        <i class="fa-solid fa-text-height"></i>
-                        <span>|</span>
-                        <i class="fa-solid fa-list-ul"></i>
-                        <i class="fa-solid fa-list-ol"></i>
-                        <i class="fa-solid fa-align-left"></i>
-                        <span>|</span>
-                        <i class="fa-solid fa-link"></i>
-                        <i class="fa-solid fa-image"></i>
-                        <i class="fa-solid fa-clapperboard"></i>
-                        <i class="fa-solid fa-video"></i>
-                        <i class="fa-solid fa-table"></i>
+                        <i class="fa-solid fa-bold"></i><i class="fa-solid fa-italic"></i><i
+                            class="fa-solid fa-image"></i>
                     </div>
                     <div class="editor-content" contenteditable="true">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua. Ut enim ad minim enia quis oronscol vilt ullaci lobilort e
-                        alquiae ex: ea commodo consequat.
+                        Bắt đầu viết nội dung bài viết của bạn tại đây...
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
+
+    <script src="/js/flatpickr.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Cấu hình ngôn ngữ tiếng Việt đầy đủ để tránh lỗi .join()
+            const vietnamese = {
+                weekdays: {
+                    shorthand: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+                    longhand: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"]
+                },
+                months: {
+                    shorthand: ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"],
+                    longhand: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
+                },
+                firstDayOfWeek: 1,
+                rangeSeparator: " đến ",
+                scrollTitle: "Cuộn để tăng giảm",
+                toggleTitle: "Nhấn để chọn",
+                time_24hr: true
+            };
+
+            // Khởi tạo Flatpickr
+            const dateInput = document.getElementById('publish-date');
+            const picker = flatpickr(dateInput, {
+                enableTime: true,
+                dateFormat: "d/m/Y H:i",
+                time_24hr: true,
+                locale: vietnamese, // Sử dụng biến locale đã định nghĩa ở trên
+                allowInput: false
+            });
+
+            // CẢI TIẾN: Click vào ô input sẽ tự động gán ngày giờ hiện tại nếu đang trống
+            dateInput.addEventListener('click', function () {
+                if (this.value === "") {
+                    picker.setDate(new Date());
+                }
+            });
+        });
+    </script>
 
 </body>
 
