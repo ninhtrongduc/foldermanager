@@ -9,109 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="/css/foldermanager.css">
-    <link rel="stylesheet" href="/css/flatpickr.min.css">
-
-    <style>
-        /* Tinh chỉnh riêng cho form Thêm bài viết */
-        .post-form-container {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid var(--border);
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 14px;
-            color: var(--light-blue);
-            font-size: 14px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px 12px 12px 42px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-            background: #fff;
-        }
-
-        .input-field:focus {
-            border-color: var(--light-blue);
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            color: var(--text-dark);
-            grid-column: span 2;
-            padding: 5px 0;
-        }
-
-        .editor-toolbar {
-            border: 1px solid var(--border);
-            border-bottom: none;
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-            color: var(--light-blue);
-        }
-
-        .editor-content {
-            border: 1px solid var(--border);
-            border-radius: 0 0 8px 8px;
-            padding: 20px;
-            min-height: 250px;
-            font-size: 15px;
-            line-height: 1.6;
-            outline: none;
-            background: #fff;
-        }
-
-        /* Tùy chỉnh Flatpickr */
-        .flatpickr-calendar {
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
-            border: 1px solid var(--border) !important;
-        }
-
-        .flatpickr-day.selected {
-            background: var(--primary) !important;
-            border-color: var(--primary) !important;
-        }
-
-        .btn-header-group {
-            display: flex;
-            gap: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/post.css">
+    <!-- SUNEDITOR -->
+    <!-- Nhúng CSS từ thư mục static/suneditor/ -->
+    <link href="/suneditor/suneditor.min.css" rel="stylesheet">
+    <script src="/suneditor/suneditor.min.js"></script>
+    <!-- SUNEDITOR -->
 </head>
 
 <body>
@@ -125,8 +28,7 @@
             <div class="btn-header-group">
                 <button class="btn btn-primary" style="background: var(--primary);"><i
                         class="fa-solid fa-paper-plane"></i> Đăng</button>
-                <button class="btn" style="background: var(--danger); color: white;"><i
-                        class="fa-solid fa-trash-can"></i> Xóa</button>
+                <button class="btn" style="background: var(--danger); color: white;"><i class="fa-solid fa-ban"></i> Hủy</button>
             </div>
         </header>
 
@@ -134,30 +36,38 @@
             <div class="post-form-container">
                 <div class="form-card">
                     <div class="input-grid">
+                        <!-- HÀNG 1 -->
                         <div class="input-group">
-                            <i class="fa-solid fa-heading"></i>
+                            <i class="fa-solid fa-file"></i>
                             <input type="text" class="input-field" placeholder="Tên bài viết">
                         </div>
+                    
                         <div class="input-group">
                             <i class="fa-solid fa-link"></i>
-                            <input type="text" class="input-field" placeholder="Tên url">
+                            <input type="text" class="input-field" placeholder="ten-url-bai-viet">
                         </div>
+                    
+                        <!-- HÀNG 2: Danh sách chuyên mục và Tin tiêu điểm sẽ nằm ở đây -->
                         <div class="input-group">
                             <i class="fa-solid fa-layer-group"></i>
                             <select class="input-field" style="padding-left: 42px;">
                                 <option value="">Danh sách chuyên mục</option>
                             </select>
                         </div>
-                        <div class="checkbox-group">
+                    
+                        <div class="checkbox-group" style="display: flex; align-items: center; height: 100%;">
                             <input type="checkbox" id="is_featured">
-                            <label for="is_featured">Tin tiêu điểm <i class="fa-solid fa-star"
-                                    style="color: #ffb100;"></i></label>
+                            <label for="is_featured" style="margin-bottom: 0; margin-left: 10px; cursor: pointer;">
+                                Tin tiêu điểm <i class="fa-solid fa-star" style="color: #ffb100;"></i>
+                            </label>
                         </div>
+                    
+                        <!-- HÀNG 3 -->
                         <div class="input-group">
                             <i class="fa-solid fa-user-pen"></i>
                             <input type="text" class="input-field" placeholder="Tác giả">
                         </div>
-
+                    
                         <div class="input-group">
                             <i class="fa-solid fa-calendar-check"></i>
                             <input type="text" id="publish-date" class="input-field" placeholder="Ngày đăng" readonly>
@@ -165,56 +75,72 @@
                     </div>
                 </div>
 
+                <!-- RICH TEXT EDITOR -->
                 <div class="form-card">
-                    <div class="editor-toolbar">
-                        <i class="fa-solid fa-bold"></i><i class="fa-solid fa-italic"></i><i
-                            class="fa-solid fa-image"></i>
-                    </div>
-                    <div class="editor-content" contenteditable="true">
+                    <!-- Textarea này sẽ là nơi SunEditor xuất hiện -->
+                    <textarea id="sun_editor_container" name="content">
                         Bắt đầu viết nội dung bài viết của bạn tại đây...
-                    </div>
+                    </textarea>
                 </div>
+                <!-- RICH TEXT EDITOR -->
             </div>
         </div>
     </div>
 
-    <script src="/js/flatpickr.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Cấu hình ngôn ngữ tiếng Việt đầy đủ để tránh lỗi .join()
-            const vietnamese = {
-                weekdays: {
-                    shorthand: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
-                    longhand: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"]
-                },
-                months: {
-                    shorthand: ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"],
-                    longhand: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
-                },
-                firstDayOfWeek: 1,
-                rangeSeparator: " đến ",
-                scrollTitle: "Cuộn để tăng giảm",
-                toggleTitle: "Nhấn để chọn",
-                time_24hr: true
-            };
+            // --- Khởi tạo Date / Time hiện hành ---
+            const publishDateInput = document.getElementById('publish-date');
+            if (publishDateInput) {
+                const now = new Date();
 
-            // Khởi tạo Flatpickr
-            const dateInput = document.getElementById('publish-date');
-            const picker = flatpickr(dateInput, {
-                enableTime: true,
-                dateFormat: "d/m/Y H:i",
-                time_24hr: true,
-                locale: vietnamese, // Sử dụng biến locale đã định nghĩa ở trên
-                allowInput: false
-            });
+                // Định dạng: DD/MM/YYYY HH:mm (Ví dụ: 06/05/2026 15:30)
+                const formattedDate = now.toLocaleDateString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }) + ' ' + now.toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
 
-            // CẢI TIẾN: Click vào ô input sẽ tự động gán ngày giờ hiện tại nếu đang trống
-            dateInput.addEventListener('click', function () {
-                if (this.value === "") {
-                    picker.setDate(new Date());
+                publishDateInput.value = formattedDate;
+            }
+            
+            // --- Khởi tạo SunEditor ---
+            const sunEditorElement = document.getElementById('sun_editor_container');
+            
+            if (sunEditorElement) {
+                try {
+                    const editor = SUNEDITOR.create(sunEditorElement, {
+                        width: '100%',
+                        height: '400px',
+                        plugins: SUNEDITOR.plugins,
+                        buttonList: [
+                            ['undo', 'redo'],
+                            ['font', 'fontSize', 'blockStyle'],
+                            ['paragraphStyle', 'blockquote'],
+                            ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript'],
+                            ['fontColor', 'backgroundColor', 'textStyle'],
+                            ['removeFormat'],
+                            '/', // Xuống dòng cho thanh công cụ
+                            ['outdent', 'indent'],
+                            ['align', 'hr', 'list', 'lineHeight'],
+                            ['table', 'link', 'image', 'video', 'audio'],
+                            ['fullScreen', 'showBlocks', 'codeView'],
+                            ['preview', 'print'],
+                            ['save', 'template']
+                        ],
+                        // Đảm bảo tiếng Việt cho Editor nếu cần (tùy build của bạn)
+                        // lang: SUNEDITOR_LANG.en 
+                    });
+                    console.log("SunEditor initialized successfully!");
+                } catch (error) {
+                    console.error("SunEditor initialization error:", error);
                 }
-            });
+            } else {
+                console.error("Target element 'sun_editor_container' not found!");
+            }
         });
     </script>
 
